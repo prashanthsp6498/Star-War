@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -16,19 +17,29 @@ public class Player : MonoBehaviour
     [SerializeField] float controlYawFactor = -10f;
     [SerializeField] float controlRollFactor = -10f;
     [SerializeField] float controlrollFactor = -10f;
-    float xThrow, yThrow;
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
+    bool isControlEnabled = true;
+    float xThrow, yThrow;
+    
     void Update()
     {
-        HorizontalControl();
-        VerticalControl();
-        RotationControl();
-                
+        if (isControlEnabled)
+        {
+            HorizontalControl();
+            VerticalControl();
+            RotationControl();
+        }
+
+        if (Input.GetKey(KeyCode.Space))
+        {
+            isControlEnabled = true;
+        }
+    }
+
+    void FreezeControl()
+    {
+        isControlEnabled = false;
+        print("freezing controling");
     }
 
     private void RotationControl()
@@ -36,7 +47,6 @@ public class Player : MonoBehaviour
         float pitch = positionPitchFactor * transform.localPosition.y + yThrow + controlPitchFactor;
         float roll = xThrow * controlrollFactor;
         float yaw = positionYawFactor * transform.localRotation.x;
-
         transform.localRotation = Quaternion.Euler(-pitch, yaw, roll);
     }
 
@@ -47,7 +57,6 @@ public class Player : MonoBehaviour
         float xRawPosition = transform.localPosition.x + xOffsetOfThisFrame;
         float clampedXPosition = Mathf.Clamp(xRawPosition, -20f, 20f);
         transform.localPosition = new Vector3(clampedXPosition, transform.localPosition.y, transform.localPosition.z);
-
     }
 
     private void VerticalControl()
@@ -55,7 +64,6 @@ public class Player : MonoBehaviour
         yThrow = CrossPlatformInputManager.GetAxis("Vertical");
         float yOffsetOfThisFrame = yThrow * ySpeed * Time.deltaTime;
         float yRawPosition = transform.localPosition.y + yOffsetOfThisFrame;
-        print("Ypostion : " + yRawPosition);
         float clampedYPosition = Mathf.Clamp(yRawPosition, -7f, 7f);
         transform.localPosition = new Vector3(transform.localPosition.x, clampedYPosition, transform.localPosition.z);
     }
